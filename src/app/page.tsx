@@ -80,6 +80,42 @@ export default function HomePage() {
           Generate psychological impact reports showing exactly how competitors are stealing your customers and revenue.
         </p>
 
+        {/* CTA Buttons */}
+        <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '64px' }}>
+          <a 
+            href="/dashboard"
+            style={{
+              backgroundColor: '#2563eb',
+              color: 'white',
+              padding: '16px 32px',
+              borderRadius: '8px',
+              textDecoration: 'none',
+              fontWeight: '600',
+              fontSize: '16px',
+              display: 'inline-block'
+            }}
+          >
+            Generate Report →
+          </a>
+          
+          <a 
+            href="/api/test"
+            style={{
+              backgroundColor: 'white',
+              color: '#2563eb',
+              padding: '16px 32px',
+              borderRadius: '8px',
+              textDecoration: 'none',
+              fontWeight: '600',
+              fontSize: '16px',
+              border: '2px solid #2563eb',
+              display: 'inline-block'
+            }}
+          >
+            Test API
+          </a>
+        </div>
+
         {/* Features */}
         <div style={{
           display: 'grid',
@@ -89,6 +125,22 @@ export default function HomePage() {
           maxWidth: '900px',
           margin: '0 auto 48px auto'
         }}>
+          <div style={{
+            backgroundColor: 'white',
+            padding: '24px',
+            borderRadius: '12px',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
+            border: '1px solid #e5e7eb'
+          }}>
+            <div style={{ fontSize: '32px', marginBottom: '12px' }}>💸</div>
+            <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '8px', color: '#1f2937' }}>
+              Revenue Bleeding Analysis
+            </h3>
+            <p style={{ color: '#6b7280', fontSize: '14px' }}>
+              Show exact dollar amounts competitors are capturing from their market
+            </p>
+          </div>
+
           <div style={{
             backgroundColor: 'white',
             padding: '24px',
@@ -154,54 +206,14 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* CTA Buttons */}
-        <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <a 
-            href="/dashboard"
-            style={{
-              backgroundColor: '#2563eb',
-              color: 'white',
-              padding: '16px 32px',
-              borderRadius: '8px',
-              textDecoration: 'none',
-              fontWeight: '600',
-              fontSize: '16px',
-              display: 'inline-block',
-              transition: 'background-color 0.2s'
-            }}
-            onMouseOver={(e) => e.target.style.backgroundColor = '#1d4ed8'}
-            onMouseOut={(e) => e.target.style.backgroundColor = '#2563eb'}
-          >
-            Generate Report →
-          </a>
-          
-          <a 
-            href="/api/test"
-            style={{
-              backgroundColor: 'white',
-              color: '#2563eb',
-              padding: '16px 32px',
-              borderRadius: '8px',
-              textDecoration: 'none',
-              fontWeight: '600',
-              fontSize: '16px',
-              border: '2px solid #2563eb',
-              display: 'inline-block'
-            }}
-          >
-            Test API
-          </a>
-        </div>
-
         {/* Live System Status */}
         <div style={{
-          marginTop: '64px',
           padding: '24px',
           backgroundColor: '#f0fdf4',
           border: '1px solid #bbf7d0',
           borderRadius: '12px',
           maxWidth: '600px',
-          margin: '64px auto 0 auto'
+          margin: '0 auto'
         }}>
           <div style={{
             display: 'flex',
@@ -246,20 +258,4 @@ export default function HomePage() {
       </div>
     </div>
   );
-} 0, 0, 0.05)',
-            border: '1px solid #e5e7eb'
-          }}>
-            <div style={{ fontSize: '32px', marginBottom: '12px' }}>💸</div>
-            <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '8px', color: '#1f2937' }}>
-              Revenue Bleeding Analysis
-            </h3>
-            <p style={{ color: '#6b7280', fontSize: '14px' }}>
-              Show exact dollar amounts competitors are capturing from their market
-            </p>
-          </div>
-
-          <div style={{
-            backgroundColor: 'white',
-            padding: '24px',
-            borderRadius: '12px',
-            boxShadow: '0 4px 6px rgba(0,
+}

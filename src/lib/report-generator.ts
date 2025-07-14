@@ -257,3 +257,87 @@ export class ReportGenerator {
     competitors: CompetitorAnalysis[],
     geographicData: GeographicAnalysis,
     marketData: MarketData
+  ): RevenueImpact {
+    const clientVisibilityPercentage = geographicData.clientVisibleZones / geographicData.totalZones;
+    const competitorVisibilityPercentage = geographicData.competitorDominatedZones / geographicData.totalZones;
+    
+    // Calculate potential daily revenue if client had better visibility
+    const potentialDailyRevenue = marketData.dailySearchVolume * marketData.averageServiceValue * marketData.conversionRate;
+    const currentDailyRevenue = potentialDailyRevenue * clientVisibilityPercentage;
+    const lostDailyRevenue = potentialDailyRevenue - currentDailyRevenue;
+
+    // Calculate competitor revenue distribution
+    const competitorRevenue: { [key: string]: number } = {};
+    competitors.forEach(competitor => {
+      competitorRevenue[competitor.name] = competitor.totalRevenue;
+    });
+
+    return {
+      dailyLostRevenue: Math.round(lostDailyRevenue),
+      monthlyLostRevenue: Math.round(lostDailyRevenue * 30),
+      annualLostRevenue: Math.round(lostDailyRevenue * 365),
+      opportunityValue: Math.round(potentialDailyRevenue * 30),
+      competitorRevenue,
+      totalMarketValue: Math.round(marketData.marketSize)
+    };
+  }
+
+  private generatePsychologicalInsights(
+    competitors: CompetitorAnalysis[],
+    revenueImpact: RevenueImpact,
+    geographicData: GeographicAnalysis
+  ): PsychologicalInsight[] {
+    const insights: PsychologicalInsight[] = [];
+    const topCompetitor = competitors[0];
+
+    if (topCompetitor) {
+      // Revenue Bleeding Insight
+      insights.push({
+        type: 'revenue_bleeding',
+        headline: `${topCompetitor.name} is capturing $${Math.round(topCompetitor.totalRevenue).toLocaleString()} monthly that should be yours`,
+        description: `While you maintain superior service quality, ${topCompetitor.name} dominates ${topCompetitor.marketPresence} of 4 key geographic zones in your market area.`,
+        impact: `$${revenueImpact.monthlyLostRevenue.toLocaleString()} in lost monthly revenue`,
+        urgency: 'high',
+        competitorName: topCompetitor.name,
+        dollarAmount: revenueImpact.monthlyLostRevenue
+      });
+
+      // Call Hijacking Insight
+      if (topCompetitor.phone) {
+        insights.push({
+          type: 'call_hijacking',
+          headline: `${topCompetitor.estimatedDailyCalls} daily service calls are going to ${topCompetitor.phone} instead of you`,
+          description: `Customers searching for services like yours are finding ${topCompetitor.name} first and calling ${topCompetitor.phone} directly.`,
+          impact: `${topCompetitor.estimatedDailyCalls * 30} potential customers lost monthly`,
+          urgency: 'high',
+          competitorName: topCompetitor.name,
+          callVolume: topCompetitor.estimatedDailyCalls
+        });
+      }
+
+      // Territory Loss Insight
+      insights.push({
+        type: 'territory_loss',
+        headline: `Your service area is being systematically dominated by competitors`,
+        description: `${geographicData.competitorDominatedZones} of ${geographicData.totalZones} geographic zones are controlled by competitors, with ${topCompetitor.name} leading the conquest.`,
+        impact: `${Math.round((geographicData.competitorDominatedZones / geographicData.totalZones) * 100)}% of your market territory is invisible to you`,
+        urgency: 'high',
+        competitorName: topCompetitor.name
+      });
+    }
+
+    // Review Paradox (if applicable)
+    const clientHasHigherRating = competitors.some(c => c.rating < 4.5); // Assuming client has good rating
+    if (clientHasHigherRating) {
+      insights.push({
+        type: 'review_paradox',
+        headline: 'Your superior ratings aren\'t translating to visibility',
+        description: 'Despite maintaining excellent customer satisfaction, lower-rated competitors achieve significantly higher search visibility.',
+        impact: 'Quality advantage being wasted due to poor search positioning',
+        urgency: 'medium'
+      });
+    }
+
+    return insights;
+  }
+}

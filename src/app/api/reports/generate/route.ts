@@ -37,30 +37,28 @@ export async function POST(request: NextRequest) {
     // Generate the report
     const reportData = await reportGenerator.generateReport(params);
 
-    // Save business to database
-    const business = await prisma.business.upsert({
+    // Find or create business
+    let business = await prisma.business.findFirst({
       where: {
-        name: params.businessName
-      },
-      update: {
-        address: params.address,
-        phone: params.phone,
-        website: params.website,
-        industry: params.industry,
-        keywords: params.keywords,
-        updatedAt: new Date()
-      },
-      create: {
         name: params.businessName,
-        address: params.address,
-        phone: params.phone || '',
-        website: params.website,
-        latitude: reportData.businessInfo.latitude,
-        longitude: reportData.businessInfo.longitude,
-        industry: params.industry,
-        keywords: params.keywords
+        address: params.address
       }
     });
+
+    if (!business) {
+      business = await prisma.business.create({
+        data: {
+          name: params.businessName,
+          address: params.address,
+          phone: params.phone || '',
+          website: params.website || '',
+          latitude: reportData.businessInfo.latitude,
+          longitude: reportData.businessInfo.longitude,
+          industry: params.industry,
+          keywords: params.keywords
+        }
+      });
+    }
 
     // Save report to database
     const report = await prisma.report.create({
@@ -82,8 +80,8 @@ export async function POST(request: NextRequest) {
         data: {
           reportId: report.id,
           name: competitor.name,
-          phone: competitor.phone,
-          address: competitor.address,
+          phone: competitor.phone || '',
+          address: competitor.address || '',
           rating: competitor.rating,
           reviews: competitor.reviews,
           rank: 1, // Will be updated with actual rank

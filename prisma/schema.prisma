@@ -1,0 +1,153 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Business {
+  id          String   @id @default(cuid())
+  name        String
+  address     String
+  phone       String?
+  website     String?
+  latitude    Float
+  longitude   Float
+  industry    String
+  keywords    String[]
+  reports     Report[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("businesses")
+}
+
+model Report {
+  id              String       @id @default(cuid())
+  businessId      String
+  business        Business     @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  reportData      Json
+  htmlContent     String?
+  pdfUrl          String?
+  generatedAt     DateTime     @default(now())
+  searchCost      Float        @default(0)
+  totalSearches   Int          @default(0)
+  competitors     Competitor[]
+  searchLogs      SearchLog[]
+  
+  // Report metrics
+  visibilityScore    Float?
+  marketCoverage     Float?
+  revenueImpact      Float?
+  competitorCount    Int       @default(0)
+  
+  @@map("reports")
+}
+
+model Competitor {
+  id           String  @id @default(cuid())
+  reportId     String
+  report       Report  @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  name         String
+  phone        String?
+  address      String?
+  rating       Float   @default(0)
+  reviews      Int     @default(0)
+  rank         Int
+  marketShare  Float   @default(0)
+  revenue      Float   @default(0)
+  website      String?
+  placeId      String?
+  zone         String
+  
+  // Competitive metrics
+  dominanceScore     Float @default(0)
+  estimatedCalls     Int   @default(0)
+  geographicCoverage Json? // Array of zones where this competitor appears
+  
+  @@map("competitors")
+}
+
+model SearchLog {
+  id          String   @id @default(cuid())
+  reportId    String?
+  report      Report?  @relation(fields: [reportId], references: [id], onDelete: SetNull)
+  query       String
+  location    String
+  gridPoint   Json     // Store lat/lng/zone info
+  cost        Float
+  timestamp   DateTime @default(now())
+  results     Json
+  success     Boolean  @default(true)
+  errorMsg    String?
+  
+  @@map("search_logs")
+}
+
+model BusinessLead {
+  id               String    @id @default(cuid())
+  name             String
+  address          String
+  phone            String?
+  email            String?
+  website          String?
+  industry         String
+  estimatedRevenue Float?
+  lastContacted    DateTime?
+  status           String    @default("new") // new, contacted, interested, converted, rejected
+  notes            String?
+  reportGenerated  Boolean   @default(false)
+  reportId         String?
+  
+  // Lead scoring
+  leadScore        Float?    @default(0)
+  priority         String?   @default("medium") // high, medium, low
+  
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  
+  @@map("business_leads")
+}
+
+model CostTracking {
+  id               String   @id @default(cuid())
+  date             DateTime @default(now())
+  totalSearches    Int      @default(0)
+  totalCost        Float    @default(0)
+  reportsGenerated Int      @default(0)
+  avgCostPerReport Float    @default(0)
+  dailyBudget      Float    @default(100)
+  budgetUsed       Float    @default(0)
+  
+  @@map("cost_tracking")
+}
+
+model EmailTemplate {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  subject     String
+  htmlContent String
+  textContent String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("email_templates")
+}
+
+model SystemConfig {
+  id               String   @id @default(cuid())
+  serpApiKey       String?
+  emailProvider    String?
+  emailApiKey      String?
+  defaultRadius    Float    @default(10)
+  searchesPerReport Int     @default(8)
+  maxReportsPerDay Int      @default(50)
+  costPerSearch    Float    @default(0.01)
+  
+  @@map("system_config")
+}

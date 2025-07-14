@@ -1,4 +1,4 @@
-// src/lib/serpapi.ts
+// src/lib/serpapi.ts - FIXED VERSION
 
 import { SearchParams, CompetitorResult, SerpApiResponse, SearchResult } from '@/types';
 
@@ -31,20 +31,21 @@ export class SerpAPIService {
         throw new Error(`SerpAPI request failed: ${response.status} ${response.statusText}`);
       }
 
-      const data: SerpApiResponse = await response.json();
+      const data: any = await response.json();
       
-      // Extract competitors from local results
+      // Extract competitors from local results - FIXED STRUCTURE
       const competitors: CompetitorResult[] = [];
       
-      if (data.local_results) {
-        data.local_results.forEach((result: any, index: number) => {
+      // Handle the correct SerpAPI structure: local_results.places[]
+      if (data.local_results && data.local_results.places) {
+        data.local_results.places.forEach((result: any, index: number) => {
           competitors.push({
             name: result.title || 'Unknown Business',
             phone: result.phone || '',
             address: result.address || '',
             rating: result.rating || 0,
             reviews: result.reviews || 0,
-            rank: index + 1,
+            rank: result.position || (index + 1),
             website: result.website,
             place_id: result.place_id,
             zone: params.gridPoint.zone
@@ -141,7 +142,7 @@ export class SerpAPIService {
   }
 }
 
-// Grid Calculator Utility
+// Grid Calculator Utility (unchanged)
 export class GridCalculator {
   static generateGridPoints(
     centerLat: number, 

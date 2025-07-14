@@ -5,8 +5,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
 }
 
 model Business {
@@ -88,31 +89,6 @@ model SearchLog {
   @@map("search_logs")
 }
 
-model BusinessLead {
-  id               String    @id @default(cuid())
-  name             String
-  address          String
-  phone            String?
-  email            String?
-  website          String?
-  industry         String
-  estimatedRevenue Float?
-  lastContacted    DateTime?
-  status           String    @default("new") // new, contacted, interested, converted, rejected
-  notes            String?
-  reportGenerated  Boolean   @default(false)
-  reportId         String?
-  
-  // Lead scoring
-  leadScore        Float?    @default(0)
-  priority         String?   @default("medium") // high, medium, low
-  
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-  
-  @@map("business_leads")
-}
-
 model CostTracking {
   id               String   @id @default(cuid())
   date             DateTime @default(now())
@@ -124,30 +100,4 @@ model CostTracking {
   budgetUsed       Float    @default(0)
   
   @@map("cost_tracking")
-}
-
-model EmailTemplate {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  subject     String
-  htmlContent String
-  textContent String
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  @@map("email_templates")
-}
-
-model SystemConfig {
-  id               String   @id @default(cuid())
-  serpApiKey       String?
-  emailProvider    String?
-  emailApiKey      String?
-  defaultRadius    Float    @default(10)
-  searchesPerReport Int     @default(8)
-  maxReportsPerDay Int      @default(50)
-  costPerSearch    Float    @default(0.01)
-  
-  @@map("system_config")
 }
